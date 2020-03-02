@@ -14,11 +14,11 @@ output:
 ---  
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=F, message=F, warning=F, cache=F)
+knitr::opts_chunk$set(echo=T, message=F, warning=F, cache=F)
 ```  
 
 ```{r echo=FALSE}
-setwd("D:\\공모전\\2019-coronavirus-dataset-01212020-01262020")
+setwd("D:\\공모전\\corona-march1")
 ```  
 
 ```{js, echo=FALSE}
@@ -155,9 +155,10 @@ full_table$index <- 1:nrow(full_table)
 </div>  
 
 <div class="fold s">
-```{r results='markup'}
+```{r}
 full_table$Date <- str_replace(full_table$Date,"2002","2020")
 full_table$Date <- gsub(pattern = "-20$", replacement = "-02",x = full_table$Date)
+full_table$Date <- gsub(pattern = "2003-01-20", replacement ="2020-01-03",x = full_table$Date)
 
 datatable(full_table, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
@@ -232,7 +233,7 @@ row_latest_grouped <- row_latest %>%
 
 
 <div class="fold s">
-```{r}
+```{r echo=TRUE}
 tmp<- full_table %>% 
       group_by(Date) %>% 
       summarise(Confirmed = sum(Confirmed),
@@ -323,58 +324,63 @@ DT::saveWidget(datatable(tmp, caption = "Table : test data",
 <div class="fold s">
 ```{r}
 # World wide - except for ship
+not_china <- full_table %>% filter(full_table$`Country/Region` != "China")
 
-full_latest_Hubei<-full_latest %>% filter(`Province/State` %in% "Hubei")
-full_latest_other<-full_latest %>% filter(`Province/State` %notin% "Hubei")
-
-
-mnpopup1 <- paste0("<li>Country: ", as.character(full_latest_other$`Country/Region`), "<br>",
-                   "<li>Province: ", as.character(full_latest_other$`Province/State`), "<br>",
-                   "<li>ConFirmed: ", as.character(full_latest_other$Confirmed), "<br>",
-                   "<li>Deaths: ", as.character(full_latest_other$Deaths), "<br>",
-                   "<li>Recovered: ", as.character(full_latest_other$Recovered), "<br>")
-
-mnpopup2 <- paste0("<li>Country: ", as.character(full_latest_Hubei$`Country/Region`), "<br>",
-                   "<li>Country: ", as.character(full_latest_Hubei$`Province/State`), "<br>",
-                   "<li>ConFirmed: ", as.character(full_latest_Hubei$Confirmed), "<br>",
-                   "<li>Deaths: ", as.character(full_latest_Hubei$Deaths), "<br>",
-                   "<li>Recovered: ", as.character(full_latest_Hubei$Recovered), "<br>")
+pal <- colorNumeric(palette = colorRampPalette(c("blue", "red"))(10),
+                    domain = 0:max(not_china$Confirmed))
 
 
-labs1 <- lapply(seq(nrow(full_latest_other)), function(i) {
-  paste0( '<b>',"Country: ","</b>" , full_latest_other[i, "Country/Region"], '<br>', 
-          '<b>',"Province: ","</b>" , full_latest_other[i, "Province/State"], '<br>',
-          '<b>',"ConFirmed: ","</b>" , full_latest_other[i, "Confirmed"], '<br>',
-          '<b>',"Deaths: ","</b>", full_latest_other[i, "Deaths"], '<br>', 
-          '<b>',"Recovered: ","</b>", full_latest_other[i, "Recovered"],'<br>') 
-})
+mnpopup1 <- paste0("<li>Country: ", as.character(not_china$`Country/Region`), "<br>",
+                   "<li>Province: ", as.character(not_china$`Province/State`), "<br>",
+                   "<li>ConFirmed: ", as.character(not_china$Confirmed), "<br>",
+                   "<li>Deaths: ", as.character(not_china$Deaths), "<br>",
+                   "<li>Recovered: ", as.character(not_china$Recovered), "<br>")
 
-labs2 <- lapply(seq(nrow(full_latest_Hubei)), function(i) {
-  paste0( '<b>',"Country: ","</b>" , full_latest_Hubei[i, "Country/Region"], '<br>', 
-          '<b>',"Province: ","</b>" , full_latest_Hubei[i, "Province/State"], '<br>',
-          '<b>',"ConFirmed: ","</b>" , full_latest_Hubei[i, "Confirmed"], '<br>',
-          '<b>',"Deaths: ","</b>", full_latest_Hubei[i, "Deaths"], '<br>', 
-          '<b>',"Recovered: ","</b>", full_latest_Hubei[i, "Recovered"],'<br>') 
+
+
+
+labs1 <- lapply(seq(nrow(not_china)), function(i) {
+  paste0( '<b>',"Country: ","</b>" , not_china[i, "Country/Region"], '<br>', 
+          '<b>',"Province: ","</b>" , not_china[i, "Province/State"], '<br>',
+          '<b>',"ConFirmed: ","</b>" , not_china[i, "Confirmed"], '<br>',
+          '<b>',"Deaths: ","</b>", not_china[i, "Deaths"], '<br>', 
+          '<b>',"Recovered: ","</b>", not_china[i, "Recovered"],'<br>') 
 })
 
 
 
 
-leaflet(data=full_latest) %>% addTiles() %>%  
+
+
+leaflet(data=not_china) %>% addTiles() %>%  
   
-  addCircleMarkers(data=full_latest_other,
+  addCircleMarkers(data=not_china,
                    ~Long, ~Lat, 
                    popup = mnpopup1, label = lapply(labs1, htmltools::HTML),
-                   radius = ~Confirmed/300, color="blue") %>% 
-  
-  addCircleMarkers(data = full_latest_Hubei,
-                   ~Long, ~Lat, 
-                   popup = mnpopup2, label = lapply(labs2, htmltools::HTML),
-                   radius = ~Confirmed/8000, color = "red")
+                   radius = ~sqrt(Confirmed)-10, opacity = 0.3, 
+                   fillOpacity = 0.2, color= ~pal(Confirmed)) %>%       
+  addLegend("bottomright", pal = pal, values = ~Confirmed,
+            title = "Num of <br> Confirmed",
+            opacity = 1,
+            bins = 7)
 ```
 </div>  
 [View the Reported cases over the world map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/all_over_map.html)  
 
+```{r echo=FALSE}
+DT::saveWidget(leaflet(data=not_china) %>% addTiles() %>%  
+  
+  addCircleMarkers(data=not_china,
+                   ~Long, ~Lat, 
+                   popup = mnpopup1, label = lapply(labs1, htmltools::HTML),
+                   radius = ~sqrt(Confirmed)-20, opacity = 0.3, 
+                   fillOpacity = 0.2, color= ~pal(Confirmed)) %>%       
+  addLegend("bottomright", pal = pal, values = ~Confirmed,
+            title = "Num of <br> Confirmed",
+            opacity = 1,
+            bins = 7),
+  "all_over_map.html")
+```  
 
 
 ### Reported cases in China  
@@ -431,6 +437,24 @@ leaflet(data=china_latest) %>% addTiles() %>%
 ```
 </div>  
 [View the Reported cases in China map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/china_map.html)  
+
+```{r echo=FALSE}
+DT::saveWidget(leaflet(data=china_latest) %>% addTiles() %>% 
+  setView(109, lat=38, zoom = 4 ) %>% 
+  
+  addCircleMarkers(data=china_latest_other,
+                   ~Long, ~Lat, 
+                   popup = mnpopup1, label = lapply(labs1, htmltools::HTML),
+                   radius = ~Confirmed/140, color="blue") %>% 
+  
+  addCircleMarkers(data = china_latest_Hubei,
+                   ~Long, ~Lat, 
+                   popup = mnpopup2, label = lapply(labs2, htmltools::HTML),
+                   radius = ~Confirmed/3000, color = "red"),
+  "china_map.html")
+```  
+
+
 
 In here, i didn't use the below map. just refer.  
 [Download the world map](http://thematicmapping.org/downloads/world_borders.php)  
@@ -639,7 +663,7 @@ DT::saveWidget(datatable(temp),
 ```  
 
 
-```{r echo=TRUE}
+```{r}
 # Provinces with no cases recovered
 
 temp <- china_latest_grouped %>% 
@@ -746,6 +770,21 @@ leaflet(data=temp) %>% addTiles() %>%
 ```
 </div>  
 [View the Diamond Princess Cruise ship Status map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/ship.html)  
+
+
+
+```{r echo=FALSE}
+DT::saveWidget(leaflet(data=temp) %>% addTiles() %>% 
+  setView(139.677376, lat=35.442777, zoom = 11 ) %>% 
+
+  addCircleMarkers(data = temp,
+                   ~Long, ~Lat, 
+                   popup = mnpopup1, label = lapply(labs1, htmltools::HTML),
+                   radius = ~17, color = "red") %>% 
+  addProviderTiles(providers$CartoDB.Positron),
+  "ship.html")
+```
+
 
 * The Diamond Princess cruise ship was carrying 3,711 passengers and crew on board  
 * Ship arrived in Yokohama, near Tokyo, on February 3  
@@ -954,7 +993,7 @@ spread_china %>% ggplot(aes(x=Date, y=`Province/State`)) +
   scale_y_continuous(breaks=seq(22,31)) +
   scale_x_date(date_breaks = "4 day", 
               labels=date_format("%m-%d"),
-              limits = as.Date(c('2020-01-22','2020-02-26'))) +
+              limits = as.Date(c('2020-01-22','2020-03-01'))) +
   ggtitle("Number of Provinces/States/Region of China \n to which COVID-19 spread over the time")
 ```  
 </div>  
@@ -971,10 +1010,10 @@ spread_out <- full_table %>%
 
 spread_out %>% ggplot(aes(x=Date, y=`Country/Region`)) +
   geom_line(col="blue",lwd=1) +
-  scale_y_continuous(breaks=seq(5,50,5)) +
+  scale_y_continuous(breaks=seq(5,70,5)) +
   scale_x_date(date_breaks = "4 day", 
               labels=date_format("%m-%d"),
-              limits = as.Date(c('2020-01-22','2020-02-26'))) +
+              limits = as.Date(c('2020-01-22','2020-03-02'))) +
   ggtitle("Number of Country/Region \n to which COVID-19 spread over the time")
 ```  
 </div>  
@@ -1215,7 +1254,7 @@ ggplot(temp_c, aes(x=Date, y=`Number of new Countries`)) +
   scale_y_continuous(breaks=seq(0,8,1)) +
   scale_x_date(date_breaks = "1 day", 
               labels=date_format("%m-%d"),
-              limits = as.Date(c('2020-01-21','2020-02-27'))) +
+              limits = as.Date(c('2020-01-21','2020-03-01'))) +
   ggtitle("Number of new Countries") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```  
