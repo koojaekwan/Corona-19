@@ -2,19 +2,19 @@
 title: "Corona-19 from Jan-22 to Feb-26"
 author: ""
 output:
+  github_document:
+    toc: yes
+    toc_depth: 4
+  word_document: default
   html_document:
     highlight: textmate
     toc: yes
     toc_depth: 4
     toc_float: yes
-  word_document: default
-  github_document:
-    toc: yes
-    toc_depth: 4
 ---  
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=T, message=F, warning=F, cache=F)
+knitr::opts_chunk$set(echo=F, message=F, warning=F, cache=F)
 ```  
 
 ```{r echo=FALSE}
@@ -162,7 +162,8 @@ full_table$Date <- gsub(pattern = "-20$", replacement = "-02",x = full_table$Dat
 datatable(full_table, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
 ```
-</div>  
+</div>
+[View the full_table](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/full_table.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(datatable(full_table, caption = "Table : test data",
@@ -259,6 +260,7 @@ datatable(tmp, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
 ```  
 </div>  
+[View the Complete Data](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/completedata.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(datatable(tmp, caption = "Table : test data",
@@ -278,8 +280,11 @@ tmp<-full_latest_grouped %>%
   
 datatable(tmp, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
-```  
+```
 </div>  
+[View the Country wise latest data](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/country_wise_latest_data.html)  
+
+
 
 ```{r echo=FALSE}
 DT::saveWidget(datatable(tmp, caption = "Table : test data",
@@ -298,8 +303,10 @@ tmp <- china_latest_grouped %>%
 
 datatable(tmp, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
-```  
+```
 </div>  
+[View the Chines Province Wise Latest Data](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/chinese_province_wise_latest_data.html)  
+
 
 ```{r echo=FALSE}
 DT::saveWidget(datatable(tmp, caption = "Table : test data",
@@ -364,8 +371,10 @@ leaflet(data=full_latest) %>% addTiles() %>%
                    ~Long, ~Lat, 
                    popup = mnpopup2, label = lapply(labs2, htmltools::HTML),
                    radius = ~Confirmed/8000, color = "red")
-```  
+```
 </div>  
+[View the Reported cases over the world map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/all_over_map.html)  
+
 
 
 ### Reported cases in China  
@@ -419,10 +428,12 @@ leaflet(data=china_latest) %>% addTiles() %>%
                    ~Long, ~Lat, 
                    popup = mnpopup2, label = lapply(labs2, htmltools::HTML),
                    radius = ~Confirmed/3000, color = "red")
-```  
+```
 </div>  
+[View the Reported cases in China map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/china_map.html)  
 
-<http://thematicmapping.org/downloads/world_borders.php>  
+In here, i didn't use the below map. just refer.  
+[Download the world map](http://thematicmapping.org/downloads/world_borders.php)  
 
 ### Cases in differnt Countries  
 
@@ -468,8 +479,10 @@ fig1 <- temp %>%
 
 
 ggplotly(fig1, dynamicTicks = T)
-```  
+```
 </div>  
+
+[View the Cases in differnt Countries - Cases](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/case_in_difference_country.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig1, dynamicTicks = T),
@@ -485,8 +498,10 @@ fig2 <- temp %>%
         ggtitle("Deaths")
 
 ggplotly(fig2, dynamicTicks = T)
-```  
+```
 </div>  
+
+[View the Cases in different Countrires - Deaths](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/case_in_difference_country2.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig2, dynamicTicks = T),
@@ -616,6 +631,7 @@ temp <- row_latest_grouped %>%
 datatable(temp)
 ```  
 </div>  
+[View the Countries and Provinces with no recovered cases](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Countries and Provinces with no recovered cases.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(datatable(temp),
@@ -623,7 +639,7 @@ DT::saveWidget(datatable(temp),
 ```  
 
 
-```{r}
+```{r echo=TRUE}
 # Provinces with no cases recovered
 
 temp <- china_latest_grouped %>% 
@@ -727,8 +743,9 @@ leaflet(data=temp) %>% addTiles() %>%
                    popup = mnpopup1, label = lapply(labs1, htmltools::HTML),
                    radius = ~17, color = "red") %>% 
   addProviderTiles(providers$CartoDB.Positron)
-```  
+```
 </div>  
+[View the Diamond Princess Cruise ship Status map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/ship.html)  
 
 * The Diamond Princess cruise ship was carrying 3,711 passengers and crew on board  
 * Ship arrived in Yokohama, near Tokyo, on February 3  
@@ -762,8 +779,9 @@ fig <- temp %>% ggplot(aes(x=location, y=val, fill=case)) +
 
 #levels 변경해야될까?
 ggplotly(fig)
-```  
+```
 </div>  
+[View the Hubei - China - World](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Hubei_China_World.html)  
 
 ```{r}
 DT::saveWidget(ggplotly(fig), "Hubei_China_World.html")
@@ -801,6 +819,8 @@ fig <- temp %>% ggplot(aes(x=Date, y=val, fill=Case)) +
 ggplotly(fig) %>% 
   layout(hovermode = "x")
 ```  
+[View the Number of new cases everyday in China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number of new cases everyday.html)  
+
 
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig) %>% 
@@ -835,8 +855,9 @@ fig <- temp %>% ggplot(aes(x=Date, y=val, fill=Case)) +
   
 ggplotly(fig) %>% 
   layout(hovermode = "x")
-```  
+```
 </div>  
+[View the Number of new cases everyday outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number of new cases everyday2.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig) %>% 
@@ -872,8 +893,9 @@ fig <- temp %>% ggplot(aes(x=Date, y=Count, fill=Case)) +
 
 ggplotly(fig) %>% 
     layout(hovermode = "x")
-```  
+```
 </div>  
+[View the Number of Cases in China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number of Cases.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig) %>% 
@@ -904,13 +926,14 @@ fig <- temp %>% ggplot(aes(x=Date, y=Count, fill=Case)) +
 
 ggplotly(fig) %>% 
     layout(hovermode = "x")
-```  
+```
 </div>  
+[View the Number of Cases outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number of Cases2.html)  
 
 ```{r}
 DT::saveWidget(ggplotly(fig) %>% 
     layout(hovermode = "x"),
-               "Number of Cases.html")
+               "Number of Cases2.html")
 ```
 
 
@@ -982,8 +1005,10 @@ fig <- temp %>% ggplot(aes(x=Date, y=Value, col=Ratio)) +
           ggtitle("Recovery and Mortaliry Rate Over The Time")
 
 ggplotly(fig)
-```  
+```
 </div>  
+[View the Recovery and Mortality Rate Over The Time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Recovery_and_Mortality.html)  
+
 
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig),
@@ -997,7 +1022,7 @@ DT::saveWidget(ggplotly(fig),
 * Although the death rate hasn't come down, the number of recovered cases has defenitly increased  
 
 
-## Proportion of Cases
+## Proportion of Cases  
 
 <div class="fold s">
 ```{r}
@@ -1022,12 +1047,14 @@ fig <- temp %>% ggplot(aes(x=reorder(`Country/Region`,Value), y=Value, fill=Case
           xlab("Country/Region")
 
 ggplotly(fig)
-```  
+```
 </div>  
+[View the Proportion of Cases outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Proportion_of_Cases.html)  
+
 
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig),
-         "Proportion of Cases.html")
+         "Proportion_of_Cases.html")
 ```
 
 
@@ -1055,12 +1082,14 @@ fig <- temp %>% ggplot(aes(x=reorder(`Province/State`,Value), y=Value, fill=Case
           xlab("Province/State")
 
 ggplotly(fig)
-```  
+```
 </div>  
+[View the Proportion of Cases in China](https://github.com/koojaekwan/Corona-19/blob/master/html_files/Proportion_of_Cases2.html)  
+
 
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig),
-               "Proportion of Cases2.html")
+               "Proportion_of_Cases2.html")
 ```
 
 
