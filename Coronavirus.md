@@ -1,4 +1,4 @@
-Corona-19 from Jan-22 to Feb-26
+Corona-19 from Jan-22 to Mar-01
 ================
 
 -   [Libraries](#libraries)
@@ -299,7 +299,7 @@ leaflet(data=china_latest) %>% addTiles() %>%
 
 ![](Coronavirus_files/figure-markdown_github/unnamed-chunk-22-1.png)
 
-[View the Reported cases in China map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/china_map.html)
+[View the Reported cases in China map](https://github.com/koojaekwan/Corona-19/blob/master/html_files/china_map.html)
 
 In here, i didn't use the below map. just refer.
 [Download the world map](http://thematicmapping.org/downloads/world_borders.php)

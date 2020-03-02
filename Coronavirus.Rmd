@@ -1,5 +1,5 @@
 ---
-title: "Corona-19 from Jan-22 to Feb-26"
+title: "Corona-19 from Jan-22 to Mar-01"
 author: ""
 output:
   github_document:
@@ -373,7 +373,7 @@ DT::saveWidget(leaflet(data=not_china) %>% addTiles() %>%
   addCircleMarkers(data=not_china,
                    ~Long, ~Lat, 
                    popup = mnpopup1, label = lapply(labs1, htmltools::HTML),
-                   radius = ~sqrt(Confirmed)-20, opacity = 0.3, 
+                   radius = ~sqrt(Confirmed)-10, opacity = 0.3, 
                    fillOpacity = 0.2, color= ~pal(Confirmed)) %>%       
   addLegend("bottomright", pal = pal, values = ~Confirmed,
             title = "Num of <br> Confirmed",
@@ -436,7 +436,7 @@ leaflet(data=china_latest) %>% addTiles() %>%
                    radius = ~Confirmed/3000, color = "red")
 ```
 </div>  
-[View the Reported cases in China map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/china_map.html)  
+[View the Reported cases in China map](https://github.com/koojaekwan/Corona-19/blob/master/html_files/china_map.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(leaflet(data=china_latest) %>% addTiles() %>% 
