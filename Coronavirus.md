@@ -342,7 +342,7 @@ plot_geo(df2) %>%
 
 ![](Coronavirus_files/figure-markdown_github/unnamed-chunk-24-1.png)
 
-[View the Confirmed Cases on the map]()
+[View the Confirmed Cases on the map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Confirmed_Cases_on_the_map.html)
 
 ``` r
 plot_geo(df2 %>% filter(Deaths>0)) %>% 
@@ -357,7 +357,7 @@ plot_geo(df2 %>% filter(Deaths>0)) %>%
 
 ![](Coronavirus_files/figure-markdown_github/unnamed-chunk-26-1.png)
 
-[View the Deaths Cases on the map]()
+[View the Deaths Cases on the map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Deaths_Cases_on_the_map.html)
 
 ``` r
 temp <- full_table %>% group_by(`Country/Region`, Date) %>%
@@ -446,7 +446,7 @@ plot_geo(china_map,x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
 
 ![](Coronavirus_files/figure-markdown_github/unnamed-chunk-34-1.png)
 
-[Spread in China over time]()
+[Spread in China over time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/China_timeline.html)
 
 ``` r
 full_map <- full_table %>% group_by(Date, `Country/Region`) %>%
@@ -476,7 +476,7 @@ plot_geo(full_map %>% filter(`Country/Region` %notin% "China"),
 
 ![](Coronavirus_files/figure-markdown_github/unnamed-chunk-36-1.png)
 
-[Spread outside China over time]()
+[Spread outside China over time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/world_timeline.html)
 
 ### Countries with deaths reported
 

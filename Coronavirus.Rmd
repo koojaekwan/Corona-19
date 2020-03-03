@@ -497,7 +497,7 @@ plot_geo(df2) %>%
 ```  
 </div>  
 
-[View the Confirmed Cases on the map]()  
+[View the Confirmed Cases on the map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Confirmed_Cases_on_the_map.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(plot_geo(df2) %>% 
@@ -524,7 +524,7 @@ plot_geo(df2 %>% filter(Deaths>0)) %>%
          geo = g) 
 ```
 </div>  
-[View the Deaths Cases on the map]()  
+[View the Deaths Cases on the map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Deaths_Cases_on_the_map.html)  
 
 
 ```{r echo=FALSE}
@@ -707,7 +707,7 @@ plot_geo(china_map,x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
 ```
 </div>  
 
-[Spread in China over time]()  
+[Spread in China over time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/China_timeline.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(plot_geo(china_map,x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
@@ -752,7 +752,7 @@ plot_geo(full_map %>% filter(`Country/Region` %notin% "China"),
          geo = list ( scope = 'world' ))
 ```
 </div>
-[Spread outside China over time]()  
+[Spread outside China over time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/world_timeline.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(plot_geo(full_map %>% filter(`Country/Region` %notin% "China"),
