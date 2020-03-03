@@ -12,7 +12,7 @@ Corona-19 from Jan-22 to Mar-01
 -   [Map](#map)
     -   [Reported cases over the world](#reported-cases-over-the-world)
     -   [Reported cases in China](#reported-cases-in-china)
-    -   [Cases in differnt Countries](#cases-in-differnt-countries)
+    -   [Cases in Countries](#cases-in-countries)
     -   [Spread over the time](#spread-over-the-time)
     -   [Countries with deaths reported](#countries-with-deaths-reported)
     -   [Countries and Provinces with no recovered cases](#countries-and-provinces-with-no-recovered-cases)
@@ -304,39 +304,66 @@ leaflet(data=china_latest) %>% addTiles() %>%
 In here, i didn't use the below map. just refer.
 [Download the world map](http://thematicmapping.org/downloads/world_borders.php)
 
-### Cases in differnt Countries
+### Cases in Countries
 
 ``` r
-# ## map - search!!
-# getwd()
-# 
-# library(rgdal)
-# myspdf<-readOGR(dsn = getwd(),layer="TM_WORLD_BORDERS_SIMPL-0.3")
-# head(myspdf)
-# summary(myspdf)
-# 
-# head(myspdf@data)
-# 
-# 
-# pal <- colorNumeric(
-#   palette = "Blues",
-#   domain = full_latest_grouped$Confirmed)
-# 
-# qpal <- colorQuantile("Blues", full_latest$Confirmed, n = length(full_latest$Confirmed))
-# paletteLayers <- colorBin(palette = "blue", domain = c(full_latest_grouped$Confirmed), 
-#                           bins = c(0, 0.2, 0.4, 0.6, .8, 1) , pretty=FALSE)
-# 
-# leaflet(data = myspdf) %>%
-#   addTiles() %>%
-#   addPolygons(stroke = FALSE, smoothFactor = 0.2, fillOpacity = 0.6,
-#     color = ~paletteLayers(full_latest_grouped$Confirmed))
-# ??paletteLayers
+df1 <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
+names(df1)[1]<-"Country/Region"
+
+df<-full_latest_grouped
+
+df2<-left_join(df,df1,by="Country/Region")
+df2$CODE[57]<-"KOR"
+df2$CODE[64]<-"GBR"
+df2$CODE[66]<-"USA"
+df2$CODE[47]<-"MKD"
+
+
+# light grey boundaries
+l <- list(color = toRGB("grey"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = T,
+  showcoastlines = T,
+  projection = list(type = 'Mercator')
+)
+
+
+plot_geo(df2) %>% 
+  add_trace(
+    z = ~log(Confirmed), colors ="YlGn",
+    text = ~paste(`Country/Region`,"\n Confirmed : ", Confirmed), locations = ~CODE, marker = list(line = l),
+    showscale = FALSE, hoverinfo = 'text') %>% 
+  colorbar(title = 'log(Confirmed) :', tickprefix = '->') %>% 
+  layout(title = "Countries with Confirmed Cases",
+         geo = g) 
 ```
 
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-24-1.png)
+
+[View the Confirmed Cases on the map]()
+
 ``` r
-temp <- full_table %>% group_by(`Country/Region`, Date) %>% summarise(Confirmed=sum(Confirmed),
-                                                                      Deaths=sum(Deaths),
-                                                                      Recovered=sum(Recovered))
+plot_geo(df2 %>% filter(Deaths>0)) %>% 
+  add_trace(
+    z = ~log(Deaths), colors ="YlOrRd",
+    text = ~paste(`Country/Region`,"\n Deaths : ", Deaths), locations = ~CODE, marker = list(line = l),
+    showscale = FALSE, hoverinfo = 'text') %>% 
+  colorbar(title = 'log(Deaths) :', tickprefix = '->') %>% 
+  layout(title = "Countries with Deaths Cases",
+         geo = g) 
+```
+
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-26-1.png)
+
+[View the Deaths Cases on the map]()
+
+``` r
+temp <- full_table %>% group_by(`Country/Region`, Date) %>%
+  summarise(Confirmed=sum(Confirmed),
+            Deaths=sum(Deaths),
+            Recovered=sum(Recovered))
 
 fig1 <- temp %>%
         ggplot(aes(x=Date, y=Confirmed, fill=`Country/Region`)) +
@@ -347,7 +374,7 @@ fig1 <- temp %>%
 ggplotly(fig1, dynamicTicks = T)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-25-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-28-1.png)
 
 [View the Cases in differnt Countries - Cases](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/case_in_difference_country.html)
 
@@ -360,7 +387,7 @@ fig2 <- temp %>%
 ggplotly(fig2, dynamicTicks = T)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-27-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-30-1.png)
 
 [View the Cases in different Countrires - Deaths](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/case_in_difference_country2.html)
 
@@ -390,83 +417,66 @@ temp %>% data.frame
 
 ### Spread over the time
 
+If you excute Shiny app with above code, you can see like the below.
+<!-- ![](https://raw.githubusercontent.com/koojaekwan/Corona-19/master/html_files/shiny_gif.gif) -->
+
 ``` r
-pal <- colorNumeric(palette = colorRampPalette(c("blue", "red"))(10),
-                    domain = 0:max(china$Confirmed))
-#-------------
+china_map <- china %>% group_by(Date, `Province/State`) %>%
+  summarise(Confirmed=max(Confirmed),
+            Deaths=max(Deaths),
+            Recovered=max(Recovered),
+            Lat=max(Lat),
+            Long=max(Long))
+
+china_map$Date<-format(china_map$Date, format='%m/%d/%Y')
 
 
-ui <- bootstrapPage(
-  tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
-  absolutePanel(top = 50, 
-                right = 100,
-                draggable = T,
-                style="z-index:500;",
-                sliderInput("animation", "Time:",
-                            "Time of data collection:",
-                            min = min(china$Date),
-                            max = max(china$Date),
-                            value = min(china$Date),
-                            step = 0.7,
-                            animate=
-                              animationOptions(interval=300, loop = T,
-                                               playButton = "Play", pauseButton = "Stop"))),
+plot_geo(china_map,x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
+         frame=~Date, mode = 'markers',color=~Confirmed,
+         text = ~paste0(`Province/State`, "\n", "Comfirmed :",Confirmed),
+         hoverinfo = 'text') %>% 
   
-  leafletOutput("koo_map", width = "100%", height = "100%")
-)
-
-
-
-server <- function(input, output, session){
-  filteredData <- reactive({
-    #add rollified thing
-    from<- input$animation
-    till<- input$animation+1       # calculate one day
-    china %>% filter(Date >= from & Date <=  till)
-  })
+  add_markers(size = ~Confirmed,
+              showlegend = FALSE, showscale=FALSE,
+              marker=list(sizeref=0.07, sizemode="area")) %>% 
   
-  
-  output$koo_map <- renderLeaflet({
-    #stuff in server
-
-    leaflet() %>%
-      addProviderTiles(providers$CartoDB.Positron) %>% # map tile option
-      
-      setView(lng=109, lat=38, zoom = 4 )
-    # addControl(actionButton("zoomer","Reset"),position="topright")
-  })
-  
-  observe({
-    
-    mnpopup1 <- paste0("<b>","Province: ","</b>", as.character(filteredData()$`Province/State`), "<br>",
-                       "<b>","ConFirmed: ","</b>", as.character(filteredData()$Confirmed), "<br>",
-                       "<b>", "Deaths: ", "</b>", as.character(filteredData()$Deaths), "<br>",
-                       "<b>", "Recovered: ", "</b>", as.character(filteredData()$Recovered), "<br>")
-    
-
-    
-    leafletProxy(mapId = "koo_map", data = filteredData()) %>%
-      clearMarkers() %>%   ## clear previous markers
-      clearShapes() %>%
-    
-      setView(109, lat=38, zoom = 4 ) %>% 
-      
-      addCircleMarkers(lng = ~Long, lat = ~Lat,
-                       popup = mnpopup1,
-                       radius = ~sqrt(sqrt(Confirmed))+5, opacity = 0.2, 
-                       fillOpacity = 0.2, color= ~pal(Confirmed))
-      
-      
-      # addLegend("bottomright", pal = pal, values = ~Confirmed,
-      #           title = "Num of <br> Confirmed",
-      #           opacity = 1)
-  })
-  
-  
-}
-
-#shinyApp(ui, server)
+  layout(title = 'Spread in China over time',showlegend = FALSE, showscale=FALSE,
+         geo = list ( scope = 'asia' ))
 ```
+
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-34-1.png)
+
+[Spread in China over time]()
+
+``` r
+full_map <- full_table %>% group_by(Date, `Country/Region`) %>%
+  summarise(Confirmed=max(Confirmed),
+            Deaths=max(Deaths),
+            Recovered=max(Recovered),
+            Lat=max(Lat),
+            Long=max(Long))
+
+
+full_map$Date<-format(full_map$Date, format='%m/%d/%Y')
+
+
+plot_geo(full_map %>% filter(`Country/Region` %notin% "China"),
+         x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
+         frame=~Date, mode = 'markers',color=~Confirmed,
+         text = ~paste0(`Country/Region`, "\n", "Comfirmed :",Confirmed),
+         hoverinfo = 'text') %>% 
+  
+  add_markers(size = ~Confirmed,
+              showlegend = FALSE, showscale=FALSE,
+              marker=list(sizeref=0.1)) %>% 
+  
+  layout(title = 'Spread outside China over time',showlegend = FALSE, showscale=FALSE,
+         geo = list ( scope = 'world' ))
+```
+
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-36-1.png)
+
+[Spread outside China over time]()
 
 ### Countries with deaths reported
 
@@ -503,7 +513,7 @@ temp <- row_latest_grouped %>%
 datatable(temp)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-32-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-39-1.png)
 
 [View the Countries and Provinces with no recovered cases](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Countries%20and%20Provinces%20with%20no%20recovered%20cases.html)
 
@@ -636,7 +646,7 @@ leaflet(data=temp) %>% addTiles() %>%
   addProviderTiles(providers$CartoDB.Positron)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-40-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-47-1.png)
 
 [View the Diamond Princess Cruise ship Status map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/ship.html)
 
@@ -672,7 +682,7 @@ fig <- temp %>% ggplot(aes(x=location, y=val, fill=case)) +
 ggplotly(fig)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-42-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-49-1.png)
 
 [View the Hubei - China - World](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Hubei_China_World.html)
 
@@ -710,7 +720,7 @@ ggplotly(fig) %>%
   layout(hovermode = "x")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-44-1.png) [View the Number of new cases everyday in China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20new%20cases%20everyday.html)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-51-1.png) [View the Number of new cases everyday in China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20new%20cases%20everyday.html)
 
 ``` r
 temp <- row %>% 
@@ -738,7 +748,7 @@ ggplotly(fig) %>%
   layout(hovermode = "x")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-46-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-53-1.png)
 
 [View the Number of new cases everyday outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20new%20cases%20everyday2.html)
 
@@ -769,7 +779,7 @@ ggplotly(fig) %>%
     layout(hovermode = "x")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-48-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-55-1.png)
 
 [View the Number of Cases in China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20Cases.html)
 
@@ -796,7 +806,7 @@ ggplotly(fig) %>%
     layout(hovermode = "x")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-50-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-57-1.png)
 
 [View the Number of Cases outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20Cases2.html)
 
@@ -827,7 +837,7 @@ spread_china %>% ggplot(aes(x=Date, y=`Province/State`)) +
   ggtitle("Number of Provinces/States/Region of China \n to which COVID-19 spread over the time")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-52-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-59-1.png)
 
 ``` r
 spread_out <- full_table %>% 
@@ -847,7 +857,7 @@ spread_out %>% ggplot(aes(x=Date, y=`Country/Region`)) +
   ggtitle("Number of Country/Region \n to which COVID-19 spread over the time")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-53-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-1.png)
 
 -   COVID-19 spread to all the provinces of the China really fast and early
 -   Number of countries to which COVID-19 spread hasn't increased that much after first few weeks
@@ -875,7 +885,7 @@ fig <- temp %>% ggplot(aes(x=Date, y=Value, col=Ratio)) +
 ggplotly(fig)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-54-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-61-1.png)
 
 [View the Recovery and Mortality Rate Over The Time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Recovery_and_Mortality.html)
 
@@ -910,7 +920,7 @@ fig <- temp %>% ggplot(aes(x=reorder(`Country/Region`,Value), y=Value, fill=Case
 ggplotly(fig)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-56-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-63-1.png)
 
 [View the Proportion of Cases outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Proportion_of_Cases.html)
 
@@ -938,7 +948,7 @@ fig <- temp %>% ggplot(aes(x=reorder(`Province/State`,Value), y=Value, fill=Case
 ggplotly(fig)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-58-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-65-1.png)
 
 [View the Proportion of Cases in China](https://github.com/koojaekwan/Corona-19/blob/master/html_files/Proportion_of_Cases2.html)
 
@@ -950,7 +960,7 @@ treemap(china_latest,
         title="Number of Confirmed Cases in Chinese Provinces")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-1.png)
 
 ``` r
 treemap(china_latest,
@@ -960,7 +970,7 @@ treemap(china_latest,
         title="Number of Deaths Reported in Chinese Provinces")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-2.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-2.png)
 
 ``` r
 treemap(china_latest,
@@ -970,7 +980,7 @@ treemap(china_latest,
         title="Number of Recovered Cases in Chinese Provinces")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-3.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-3.png)
 
 ``` r
 treemap(row_latest,
@@ -980,7 +990,7 @@ treemap(row_latest,
         title="Number of Confirmed Cases outside China")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-4.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-4.png)
 
 ``` r
 treemap(row_latest,
@@ -990,7 +1000,7 @@ treemap(row_latest,
         title="Number of Deaths Reported outside China")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-5.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-5.png)
 
 ``` r
 treemap(row_latest,
@@ -1000,7 +1010,7 @@ treemap(row_latest,
         title="Number of Recovered Cases outside China")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-6.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-6.png)
 
 Number of cases
 ---------------
@@ -1023,7 +1033,7 @@ temp %>% ggplot(aes(x=Date, y=val, col=Cases)) +
         legend.position = c(0.15, 0.8))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-61-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-68-1.png)
 
 ``` r
 temp <- row %>% group_by(Date) %>% summarise(Confirmed=sum(Confirmed),
@@ -1041,7 +1051,7 @@ temp %>% ggplot(aes(x=Date, y=val, col=Cases)) +
         legend.position = c(0.15, 0.8))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-62-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-69-1.png)
 
 Number of new cases
 -------------------
@@ -1068,7 +1078,7 @@ ggplot(temp_c, aes(x=Date, y=n)) +
                                   colour ="black"))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-64-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-71-1.png)
 
 ``` r
 # Number of new Countries
@@ -1086,7 +1096,7 @@ ggplot(temp_c, aes(x=Date, y=`Number of new Countries`)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-65-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-72-1.png)
 
 refer
 -----

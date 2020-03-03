@@ -459,42 +459,93 @@ DT::saveWidget(leaflet(data=china_latest) %>% addTiles() %>%
 In here, i didn't use the below map. just refer.  
 [Download the world map](http://thematicmapping.org/downloads/world_borders.php)  
 
-### Cases in differnt Countries  
+### Cases in Countries  
 
 <div class="fold s">
 ```{r}
-# ## map - search!!
-# getwd()
-# 
-# library(rgdal)
-# myspdf<-readOGR(dsn = getwd(),layer="TM_WORLD_BORDERS_SIMPL-0.3")
-# head(myspdf)
-# summary(myspdf)
-# 
-# head(myspdf@data)
-# 
-# 
-# pal <- colorNumeric(
-#   palette = "Blues",
-#   domain = full_latest_grouped$Confirmed)
-# 
-# qpal <- colorQuantile("Blues", full_latest$Confirmed, n = length(full_latest$Confirmed))
-# paletteLayers <- colorBin(palette = "blue", domain = c(full_latest_grouped$Confirmed), 
-#                           bins = c(0, 0.2, 0.4, 0.6, .8, 1) , pretty=FALSE)
-# 
-# leaflet(data = myspdf) %>%
-#   addTiles() %>%
-#   addPolygons(stroke = FALSE, smoothFactor = 0.2, fillOpacity = 0.6,
-#     color = ~paletteLayers(full_latest_grouped$Confirmed))
-# ??paletteLayers
+df1 <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
+names(df1)[1]<-"Country/Region"
+
+df<-full_latest_grouped
+
+df2<-left_join(df,df1,by="Country/Region")
+df2$CODE[57]<-"KOR"
+df2$CODE[64]<-"GBR"
+df2$CODE[66]<-"USA"
+df2$CODE[47]<-"MKD"
+
+
+# light grey boundaries
+l <- list(color = toRGB("grey"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = T,
+  showcoastlines = T,
+  projection = list(type = 'Mercator')
+)
+
+
+plot_geo(df2) %>% 
+  add_trace(
+    z = ~log(Confirmed), colors ="YlGn",
+    text = ~paste(`Country/Region`,"\n Confirmed : ", Confirmed), locations = ~CODE, marker = list(line = l),
+    showscale = FALSE, hoverinfo = 'text') %>% 
+  colorbar(title = 'log(Confirmed) :', tickprefix = '->') %>% 
+  layout(title = "Countries with Confirmed Cases",
+         geo = g) 
 ```  
 </div>  
 
+[View the Confirmed Cases on the map]()  
+
+```{r echo=FALSE}
+DT::saveWidget(plot_geo(df2) %>% 
+  add_trace(
+    z = ~log(Confirmed), colors ="YlGn",
+    text = ~paste(`Country/Region`,"\n Confirmed : ", Confirmed), locations = ~CODE, marker = list(line = l),
+    showscale = FALSE, hoverinfo = 'text') %>% 
+  colorbar(title = 'log(Confirmed) :', tickprefix = '->') %>% 
+  layout(title = "Countries with Confirmed Cases",
+         geo = g),
+  "Confirmed_Cases_on_the_map.html")
+```  
+
+
 <div class="fold s">
 ```{r}
-temp <- full_table %>% group_by(`Country/Region`, Date) %>% summarise(Confirmed=sum(Confirmed),
-                                                                      Deaths=sum(Deaths),
-                                                                      Recovered=sum(Recovered))
+plot_geo(df2 %>% filter(Deaths>0)) %>% 
+  add_trace(
+    z = ~log(Deaths), colors ="YlOrRd",
+    text = ~paste(`Country/Region`,"\n Deaths : ", Deaths), locations = ~CODE, marker = list(line = l),
+    showscale = FALSE, hoverinfo = 'text') %>% 
+  colorbar(title = 'log(Deaths) :', tickprefix = '->') %>% 
+  layout(title = "Countries with Deaths Cases",
+         geo = g) 
+```
+</div>  
+[View the Deaths Cases on the map]()  
+
+
+```{r echo=FALSE}
+DT::saveWidget(plot_geo(df2 %>% filter(Deaths>0)) %>% 
+  add_trace(
+    z = ~log(Deaths), colors ="YlOrRd",
+    text = ~paste(`Country/Region`,"\n Deaths : ", Deaths), locations = ~CODE, marker = list(line = l),
+    showscale = FALSE, hoverinfo = 'text') %>% 
+  colorbar(title = 'log(Deaths) :', tickprefix = '->') %>% 
+  layout(title = "Countries with Deaths Cases",
+         geo = g),
+  "Deaths_Cases_on_the_map.html")
+```
+
+
+<div class="fold s">
+```{r}
+temp <- full_table %>% group_by(`Country/Region`, Date) %>%
+  summarise(Confirmed=sum(Confirmed),
+            Deaths=sum(Deaths),
+            Recovered=sum(Recovered))
 
 fig1 <- temp %>%
         ggplot(aes(x=Date, y=Confirmed, fill=`Country/Region`)) +
@@ -548,84 +599,178 @@ temp %>% data.frame
 ### Spread over the time  
 
 <div class="fold s">
-```{r}
-pal <- colorNumeric(palette = colorRampPalette(c("blue", "red"))(10),
-                    domain = 0:max(china$Confirmed))
-#-------------
-
-
-ui <- bootstrapPage(
-  tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
-  absolutePanel(top = 50, 
-                right = 100,
-                draggable = T,
-                style="z-index:500;",
-                sliderInput("animation", "Time:",
-                            "Time of data collection:",
-                            min = min(china$Date),
-                            max = max(china$Date),
-                            value = min(china$Date),
-                            step = 0.7,
-                            animate=
-                              animationOptions(interval=300, loop = T,
-                                               playButton = "Play", pauseButton = "Stop"))),
-  
-  leafletOutput("koo_map", width = "100%", height = "100%")
-)
-
-
-
-server <- function(input, output, session){
-  filteredData <- reactive({
-    #add rollified thing
-    from<- input$animation
-    till<- input$animation+1       # calculate one day
-    china %>% filter(Date >= from & Date <=  till)
-  })
-  
-  
-  output$koo_map <- renderLeaflet({
-    #stuff in server
-
-    leaflet() %>%
-      addProviderTiles(providers$CartoDB.Positron) %>% # map tile option
-      
-      setView(lng=109, lat=38, zoom = 4 )
-    # addControl(actionButton("zoomer","Reset"),position="topright")
-  })
-  
-  observe({
-    
-    mnpopup1 <- paste0("<b>","Province: ","</b>", as.character(filteredData()$`Province/State`), "<br>",
-                       "<b>","ConFirmed: ","</b>", as.character(filteredData()$Confirmed), "<br>",
-                       "<b>", "Deaths: ", "</b>", as.character(filteredData()$Deaths), "<br>",
-                       "<b>", "Recovered: ", "</b>", as.character(filteredData()$Recovered), "<br>")
-    
-
-    
-    leafletProxy(mapId = "koo_map", data = filteredData()) %>%
-      clearMarkers() %>%   ## clear previous markers
-      clearShapes() %>%
-    
-      setView(109, lat=38, zoom = 4 ) %>% 
-      
-      addCircleMarkers(lng = ~Long, lat = ~Lat,
-                       popup = mnpopup1,
-                       radius = ~sqrt(sqrt(Confirmed))+5, opacity = 0.2, 
-                       fillOpacity = 0.2, color= ~pal(Confirmed))
-      
-      
-      # addLegend("bottomright", pal = pal, values = ~Confirmed,
-      #           title = "Num of <br> Confirmed",
-      #           opacity = 1)
-  })
-  
-  
-}
-
-#shinyApp(ui, server)
+```{r echo=FALSE}
+# pal <- colorNumeric(palette = colorRampPalette(c("blue", "red"))(10),
+#                     domain = 0:max(china$Confirmed))
+# #-------------
+# 
+# 
+# ui <- bootstrapPage(
+#   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
+#   absolutePanel(top = 50, 
+#                 right = 100,
+#                 draggable = T,
+#                 style="z-index:500;",
+#                 sliderInput("animation", "Time:",
+#                             "Time of data collection:",
+#                             min = min(china$Date),
+#                             max = max(china$Date),
+#                             value = min(china$Date),
+#                             step = 0.7,
+#                             animate=
+#                               animationOptions(interval=300, loop = T,
+#                                                playButton = "Play", pauseButton = "Stop"))),
+#   
+#   leafletOutput("koo_map", width = "100%", height = "100%")
+# )
+# 
+# 
+# 
+# server <- function(input, output, session){
+#   filteredData <- reactive({
+#     #add rollified thing
+#     from<- input$animation
+#     till<- input$animation+1       # calculate one day
+#     china %>% filter(Date >= from & Date <=  till)
+#   })
+#   
+#   
+#   output$koo_map <- renderLeaflet({
+#     #stuff in server
+# 
+#     leaflet() %>%
+#       addProviderTiles(providers$CartoDB.Positron) %>% # map tile option
+#       
+#       setView(lng=109, lat=38, zoom = 4 )
+#     # addControl(actionButton("zoomer","Reset"),position="topright")
+#   })
+#   
+#   observe({
+#     
+#     mnpopup1 <- paste0("<b>","Province: ","</b>", as.character(filteredData()$`Province/State`), "<br>",
+#                        "<b>","ConFirmed: ","</b>", as.character(filteredData()$Confirmed), "<br>",
+#                        "<b>", "Deaths: ", "</b>", as.character(filteredData()$Deaths), "<br>",
+#                        "<b>", "Recovered: ", "</b>", as.character(filteredData()$Recovered), "<br>")
+#     
+# 
+#     
+#     leafletProxy(mapId = "koo_map", data = filteredData()) %>%
+#       clearMarkers() %>%   ## clear previous markers
+#       clearShapes() %>%
+#     
+#       setView(109, lat=38, zoom = 4 ) %>% 
+#       
+#       addCircleMarkers(lng = ~Long, lat = ~Lat,
+#                        popup = mnpopup1,
+#                        radius = ~sqrt(sqrt(Confirmed))+5, opacity = 0.2, 
+#                        fillOpacity = 0.2, color= ~pal(Confirmed))
+#       
+#       
+#       # addLegend("bottomright", pal = pal, values = ~Confirmed,
+#       #           title = "Num of <br> Confirmed",
+#       #           opacity = 1)
+#   })
+#   
+#   
+# }
+# 
+# #shinyApp(ui, server)
 ```  
 </div>  
+
+If you excute Shiny app with above code, you can see like the below.  
+<!-- ![](https://raw.githubusercontent.com/koojaekwan/Corona-19/master/html_files/shiny_gif.gif) -->  
+
+<div class="fold s">
+```{r warning=FALSE, message=FALSE}
+china_map <- china %>% group_by(Date, `Province/State`) %>%
+  summarise(Confirmed=max(Confirmed),
+            Deaths=max(Deaths),
+            Recovered=max(Recovered),
+            Lat=max(Lat),
+            Long=max(Long))
+
+china_map$Date<-format(china_map$Date, format='%m/%d/%Y')
+
+
+plot_geo(china_map,x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
+         frame=~Date, mode = 'markers',color=~Confirmed,
+         text = ~paste0(`Province/State`, "\n", "Comfirmed :",Confirmed),
+         hoverinfo = 'text') %>% 
+  
+  add_markers(size = ~Confirmed,
+              showlegend = FALSE, showscale=FALSE,
+              marker=list(sizeref=0.07, sizemode="area")) %>% 
+  
+  layout(title = 'Spread in China over time',showlegend = FALSE, showscale=FALSE,
+         geo = list ( scope = 'asia' ))
+```
+</div>  
+
+[Spread in China over time]()  
+
+```{r echo=FALSE}
+DT::saveWidget(plot_geo(china_map,x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
+         frame=~Date, mode = 'markers',color=~Confirmed,
+         text = ~paste0(`Province/State`, "\n", "Comfirmed :",Confirmed),
+         hoverinfo = 'text') %>% 
+  
+  add_markers(size = ~Confirmed,
+              showlegend = FALSE, showscale=FALSE,
+              marker=list(sizeref=0.07, sizemode="area")) %>% 
+  
+  layout(title = 'Spread in China over time',showlegend = FALSE, showscale=FALSE,
+         geo = list ( scope = 'asia' )),
+  "China_timeline.html")
+```  
+
+
+<div class="fold s">
+```{r warning=FALSE, message=FALSE}
+full_map <- full_table %>% group_by(Date, `Country/Region`) %>%
+  summarise(Confirmed=max(Confirmed),
+            Deaths=max(Deaths),
+            Recovered=max(Recovered),
+            Lat=max(Lat),
+            Long=max(Long))
+
+
+full_map$Date<-format(full_map$Date, format='%m/%d/%Y')
+
+
+plot_geo(full_map %>% filter(`Country/Region` %notin% "China"),
+         x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
+         frame=~Date, mode = 'markers',color=~Confirmed,
+         text = ~paste0(`Country/Region`, "\n", "Comfirmed :",Confirmed),
+         hoverinfo = 'text') %>% 
+  
+  add_markers(size = ~Confirmed,
+              showlegend = FALSE, showscale=FALSE,
+              marker=list(sizeref=0.1)) %>% 
+  
+  layout(title = 'Spread outside China over time',showlegend = FALSE, showscale=FALSE,
+         geo = list ( scope = 'world' ))
+```
+</div>
+[Spread outside China over time]()  
+
+```{r echo=FALSE}
+DT::saveWidget(plot_geo(full_map %>% filter(`Country/Region` %notin% "China"),
+         x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
+         frame=~Date, mode = 'markers',color=~Confirmed,
+         text = ~paste0(`Country/Region`, "\n", "Comfirmed :",Confirmed),
+         hoverinfo = 'text') %>% 
+  
+  add_markers(size = ~Confirmed,
+              showlegend = FALSE, showscale=FALSE,
+              marker=list(sizeref=0.1)) %>% 
+  
+  layout(title = 'Spread outside China over time',showlegend = FALSE, showscale=FALSE,
+         geo = list ( scope = 'world' )),
+  "world_timeline.html")
+```
+
+
 
 ### Countries with deaths reported  
 
