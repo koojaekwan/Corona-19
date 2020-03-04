@@ -1035,17 +1035,19 @@ fig5<-d3tree3(treemap5, rootname = "Number of Deaths Reported outside China : ")
 fig6<-d3tree3(treemap6, rootname = "Number of Recovered Cases outside China : ")
 ```
 
-\[Number of Confirmed Cases in Chinese Provinces : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig1.html>
+-   If you want to view activative treemap, click the hyperlink!. treemap can be adjusted by you. If you want to return to original position, click the title.
 
-\[Number of Deaths Reported in Chinese Provinces : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig2.html>
+[Number of Confirmed Cases in Chinese Provinces :](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig1.html)
 
-\[Number of Recovered Cases in Chinese Provinces : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig3.html>
+[Number of Deaths Reported in Chinese Provinces :](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig2.html)
 
-\[Number of Confirmed Cases outside China : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig4.html>
+[Number of Recovered Cases in Chinese Provinces :](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig3.html)
 
-\[Number of Deaths Reported outside China : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig5.html>
+[Number of Confirmed Cases outside China :](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig4.html)
 
-\[Number of Recovered Cases outside China : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig6.html>
+[Number of Deaths Reported outside China :](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig5.html)
+
+[Number of Recovered Cases outside China :](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig6.html)
 
 Number of cases
 ---------------
