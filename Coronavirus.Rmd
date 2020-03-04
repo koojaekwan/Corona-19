@@ -8,6 +8,8 @@ output:
   word_document: default
   html_document:
     highlight: textmate
+    theme: flatly
+    code_folding : hide
     toc: yes
     toc_depth: 4
     toc_float: yes
@@ -89,7 +91,7 @@ pre.plot {
 
 ## Libraries  
 
-```{r include=FALSE}
+```{r echo = T, results = 'hide'}
 library(data.table)
 library(tidyverse)
 library(lubridate) # to manipulate Date class
@@ -104,6 +106,10 @@ library(viridis) # nice color palette
 library(RColorBrewer) # for color palettes
 library(purrr) # for mapping over a function
 library(magick) # this is call to animate/read pngs
+#devtools::install_github("gluc/data.tree")
+#devtools::install_github("timelyportfolio/d3treeR")
+library(d3treeR)
+
 
 library(shiny)
 library(rgeos)
@@ -111,25 +117,6 @@ library(maps)
 library(maptools)
 library(leaflet)   # interative map
 ```  
-
-
-```{r eval=FALSE}
-library(data.table)
-library(tidyverse)
-library(lubridate) # to manipulate Date class
-library(stringr)
-library(scales)   # for using scale_x_date
-
-library(DT)
-library(plotly)
-library(treemap)  # for drawing treemap
-
-library(rgeos)
-library(maps)
-library(maptools)
-library(leaflet)   # interative map
-```  
-
 
 
 ## Dataset  
@@ -436,7 +423,7 @@ leaflet(data=china_latest) %>% addTiles() %>%
                    radius = ~Confirmed/3000, color = "red")
 ```
 </div>  
-[View the Reported cases in China map](https://github.com/koojaekwan/Corona-19/blob/master/html_files/china_map.html)  
+[View the Reported cases in China map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/china_map.html)  
 
 ```{r echo=FALSE}
 DT::saveWidget(leaflet(data=china_latest) %>% addTiles() %>% 
@@ -1274,55 +1261,165 @@ ggplotly(fig)
 ```{r echo=FALSE}
 DT::saveWidget(ggplotly(fig),
                "Proportion_of_Cases2.html")
-```
-
+```  
 
 
 <div class="fold s">
-```{r}
+```{r include=FALSE}
+treemap1<-
 treemap(china_latest,
-        index = "Province/State",
+        index = c("Province/State","Confirmed"),
         vSize = "Confirmed",
+        vColor="Confirmed",
         type = "index",
         title="Number of Confirmed Cases in Chinese Provinces")
 
 
+treemap2<-
 treemap(china_latest,
-        index = "Province/State",
+        index = c("Province/State", "Deaths"),
         vSize = "Deaths",
+        vColor = "Deaths",
         type = "index",
         title="Number of Deaths Reported in Chinese Provinces")
 
 
+treemap3<-
 treemap(china_latest,
-        index = "Province/State",
+        index = c("Province/State", "Recovered"),
         vSize = "Recovered",
+        vColor = "Recovered",
         type = "index",
         title="Number of Recovered Cases in Chinese Provinces")
 
 
+treemap4<-
 treemap(row_latest,
-        index = "Country/Region",
+        index = c("Country/Region", "Confirmed"),
         vSize = "Confirmed",
+        vColor = "Confirmed",
         type = "index",
-        title="Number of Confirmed Cases outside China")
+        title="Number of Confirmed Cases outside China") 
 
 
-
+treemap5<-
 treemap(row_latest,
-        index = "Country/Region",
+        index = c("Country/Region", "Deaths"),
         vSize = "Deaths",
+        vColor = "Deaths",
         type = "index",
         title="Number of Deaths Reported outside China")
 
 
+treemap6<-
 treemap(row_latest,
-        index = "Country/Region",
+        index = c("Country/Region", "Recovered"),
         vSize = "Recovered",
+        vColor = "Recovered",
         type = "index",
-        title="Number of Recovered Cases outside China")
+        title="Number of Recovered Cases outside China") 
+```
+</div>  
+
+<div class="fold s">
+```{r eval=FALSE}
+treemap1<-
+treemap(china_latest,
+        index = c("Province/State","Confirmed"),
+        vSize = "Confirmed",
+        vColor="Confirmed",
+        type = "index",
+        title="Number of Confirmed Cases in Chinese Provinces")
+
+
+treemap2<-
+treemap(china_latest,
+        index = c("Province/State", "Deaths"),
+        vSize = "Deaths",
+        vColor = "Deaths",
+        type = "index",
+        title="Number of Deaths Reported in Chinese Provinces")
+
+
+treemap3<-
+treemap(china_latest,
+        index = c("Province/State", "Recovered"),
+        vSize = "Recovered",
+        vColor = "Recovered",
+        type = "index",
+        title="Number of Recovered Cases in Chinese Provinces")
+
+
+treemap4<-
+treemap(row_latest,
+        index = c("Country/Region", "Confirmed"),
+        vSize = "Confirmed",
+        vColor = "Confirmed",
+        type = "index",
+        title="Number of Confirmed Cases outside China") 
+
+
+treemap5<-
+treemap(row_latest,
+        index = c("Country/Region", "Deaths"),
+        vSize = "Deaths",
+        vColor = "Deaths",
+        type = "index",
+        title="Number of Deaths Reported outside China")
+
+
+treemap6<-
+treemap(row_latest,
+        index = c("Country/Region", "Recovered"),
+        vSize = "Recovered",
+        vColor = "Recovered",
+        type = "index",
+        title="Number of Recovered Cases outside China") 
 ```  
 </div>  
+
+<div class="fold s">
+```{r}
+#palette = "Set2",
+#bg.labels=c("white")
+
+fig1<-d3tree3(treemap1, rootname = "Number of Confirmed Cases in Chinese Provinces : ")
+
+fig2<-d3tree3(treemap2, rootname = "Number of Deaths Reported in Chinese Provinces : ")
+
+fig3<-d3tree3(treemap3, rootname = "Number of Recovered Cases in Chinese Provinces : ")
+
+fig4<-d3tree3(treemap4, rootname = "Number of Confirmed Cases outside China : ")
+
+fig5<-d3tree3(treemap5, rootname = "Number of Deaths Reported outside China : ")
+
+fig6<-d3tree3(treemap6, rootname = "Number of Recovered Cases outside China : ")
+```  
+</div>  
+
+```{r echo=FALSE}
+DT::saveWidget(fig1,"treemap_fig1.html")
+DT::saveWidget(fig2,"treemap_fig2.html")
+DT::saveWidget(fig3,"treemap_fig3.html")
+DT::saveWidget(fig4,"treemap_fig4.html")
+DT::saveWidget(fig5,"treemap_fig5.html")
+DT::saveWidget(fig6,"treemap_fig6.html")
+```  
+
+
+[Number of Confirmed Cases in Chinese Provinces : ]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig1.html>  
+
+[Number of Deaths Reported in Chinese Provinces : ]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig2.html>  
+
+[Number of Recovered Cases in Chinese Provinces : ]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig3.html>  
+
+[Number of Confirmed Cases outside China : ]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig4.html>  
+
+[Number of Deaths Reported outside China : ]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig5.html>  
+
+[Number of Recovered Cases outside China : ]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig6.html>  
+
+
 
 
 
@@ -1407,7 +1504,7 @@ ggplot(temp_c, aes(x=Date, y=`Number of new Countries`)) +
 
 
 
-## refer  
+## refer {.tabset .tabset-fade .tabset-pills}
 
 * [treemap]<https://www.r-graph-gallery.com/236-custom-your-treemap.html>  
 
@@ -1428,4 +1525,10 @@ ggplot(temp_c, aes(x=Date, y=`Number of new Countries`)) +
 * [bar chart on the leaflet map]<https://stackoverflow.com/questions/45538831/creating-a-leaflet-map-with-custom-labels-in-r>  
 
 * [Cumulative Lines Animation with ggplot2]<https://plot.ly/ggplot2/cumulative-animations/>  
+
+
+### What i solved the above problem.  
+
+* [treemap d3tree]<https://www.r-graph-gallery.com/237-interactive-treemap.html>  
+* [treemap d3tree]<http://www.buildingwidgets.com/blog/2015/7/22/week-29-d3treer-v2>  
 

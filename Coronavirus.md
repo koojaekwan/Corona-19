@@ -30,6 +30,7 @@ Corona-19 from Jan-22 to Mar-01
 -   [Number of Countries with new cases](#number-of-countries-with-new-cases)
 -   [refer](#refer)
     -   [What i have to study later.](#what-i-have-to-study-later.)
+    -   [What i solved the above problem.](#what-i-solved-the-above-problem.)
 
 Libraries
 ---------
@@ -41,10 +42,20 @@ library(lubridate) # to manipulate Date class
 library(stringr)
 library(scales)   # for using scale_x_date
 
+
 library(DT)
 library(plotly)
 library(treemap)  # for drawing treemap
+library(viridis) # nice color palette
+library(RColorBrewer) # for color palettes
+library(purrr) # for mapping over a function
+library(magick) # this is call to animate/read pngs
+#devtools::install_github("gluc/data.tree")
+#devtools::install_github("timelyportfolio/d3treeR")
+library(d3treeR)
 
+
+library(shiny)
 library(rgeos)
 library(maps)
 library(maptools)
@@ -80,7 +91,7 @@ datatable(full_table, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 [View the full\_table](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/full_table.html)
 
@@ -161,7 +172,7 @@ datatable(tmp, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 [View the Complete Data](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/completedata.html)
 
@@ -175,7 +186,7 @@ datatable(tmp, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-16-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
 [View the Country wise latest data](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/country_wise_latest_data.html)
 
@@ -189,7 +200,7 @@ datatable(tmp, caption = "Table : test data",
           filter = 'top', options = list(pageLength = 10, autoWidth = TRUE))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-18-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
 [View the Chines Province Wise Latest Data](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/chinese_province_wise_latest_data.html)
 
@@ -241,7 +252,7 @@ leaflet(data=not_china) %>% addTiles() %>%
             bins = 7)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-20-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
 [View the Reported cases over the world map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/all_over_map.html)
 
@@ -297,9 +308,9 @@ leaflet(data=china_latest) %>% addTiles() %>%
                    radius = ~Confirmed/3000, color = "red")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-22-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-21-1.png)
 
-[View the Reported cases in China map](https://github.com/koojaekwan/Corona-19/blob/master/html_files/china_map.html)
+[View the Reported cases in China map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/china_map.html)
 
 In here, i didn't use the below map. just refer.
 [Download the world map](http://thematicmapping.org/downloads/world_borders.php)
@@ -340,7 +351,7 @@ plot_geo(df2) %>%
          geo = g) 
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-24-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-23-1.png)
 
 [View the Confirmed Cases on the map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Confirmed_Cases_on_the_map.html)
 
@@ -355,7 +366,7 @@ plot_geo(df2 %>% filter(Deaths>0)) %>%
          geo = g) 
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-26-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-25-1.png)
 
 [View the Deaths Cases on the map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Deaths_Cases_on_the_map.html)
 
@@ -374,7 +385,7 @@ fig1 <- temp %>%
 ggplotly(fig1, dynamicTicks = T)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-28-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-27-1.png)
 
 [View the Cases in differnt Countries - Cases](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/case_in_difference_country.html)
 
@@ -387,7 +398,7 @@ fig2 <- temp %>%
 ggplotly(fig2, dynamicTicks = T)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-30-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-29-1.png)
 
 [View the Cases in different Countrires - Deaths](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/case_in_difference_country2.html)
 
@@ -444,7 +455,7 @@ plot_geo(china_map,x = ~Long, y = ~Lat,  showscale=FALSE, showlegend = FALSE,
          geo = list ( scope = 'asia' ))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-34-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-33-1.png)
 
 [Spread in China over time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/China_timeline.html)
 
@@ -474,7 +485,7 @@ plot_geo(full_map %>% filter(`Country/Region` %notin% "China"),
          geo = list ( scope = 'world' ))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-36-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-35-1.png)
 
 [Spread outside China over time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/world_timeline.html)
 
@@ -513,7 +524,7 @@ temp <- row_latest_grouped %>%
 datatable(temp)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-39-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-38-1.png)
 
 [View the Countries and Provinces with no recovered cases](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Countries%20and%20Provinces%20with%20no%20recovered%20cases.html)
 
@@ -646,7 +657,7 @@ leaflet(data=temp) %>% addTiles() %>%
   addProviderTiles(providers$CartoDB.Positron)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-47-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-46-1.png)
 
 [View the Diamond Princess Cruise ship Status map](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/ship.html)
 
@@ -682,7 +693,7 @@ fig <- temp %>% ggplot(aes(x=location, y=val, fill=case)) +
 ggplotly(fig)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-49-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-48-1.png)
 
 [View the Hubei - China - World](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Hubei_China_World.html)
 
@@ -720,7 +731,7 @@ ggplotly(fig) %>%
   layout(hovermode = "x")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-51-1.png) [View the Number of new cases everyday in China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20new%20cases%20everyday.html)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-50-1.png) [View the Number of new cases everyday in China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20new%20cases%20everyday.html)
 
 ``` r
 temp <- row %>% 
@@ -748,7 +759,7 @@ ggplotly(fig) %>%
   layout(hovermode = "x")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-53-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-52-1.png)
 
 [View the Number of new cases everyday outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20new%20cases%20everyday2.html)
 
@@ -779,7 +790,7 @@ ggplotly(fig) %>%
     layout(hovermode = "x")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-55-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-54-1.png)
 
 [View the Number of Cases in China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20Cases.html)
 
@@ -806,7 +817,7 @@ ggplotly(fig) %>%
     layout(hovermode = "x")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-57-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-56-1.png)
 
 [View the Number of Cases outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Number%20of%20Cases2.html)
 
@@ -837,7 +848,7 @@ spread_china %>% ggplot(aes(x=Date, y=`Province/State`)) +
   ggtitle("Number of Provinces/States/Region of China \n to which COVID-19 spread over the time")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-59-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-58-1.png)
 
 ``` r
 spread_out <- full_table %>% 
@@ -857,7 +868,7 @@ spread_out %>% ggplot(aes(x=Date, y=`Country/Region`)) +
   ggtitle("Number of Country/Region \n to which COVID-19 spread over the time")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-59-1.png)
 
 -   COVID-19 spread to all the provinces of the China really fast and early
 -   Number of countries to which COVID-19 spread hasn't increased that much after first few weeks
@@ -885,7 +896,7 @@ fig <- temp %>% ggplot(aes(x=Date, y=Value, col=Ratio)) +
 ggplotly(fig)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-61-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-60-1.png)
 
 [View the Recovery and Mortality Rate Over The Time](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Recovery_and_Mortality.html)
 
@@ -920,7 +931,7 @@ fig <- temp %>% ggplot(aes(x=reorder(`Country/Region`,Value), y=Value, fill=Case
 ggplotly(fig)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-63-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-62-1.png)
 
 [View the Proportion of Cases outside China](https://raw.githack.com/koojaekwan/Corona-19/master/html_files/Proportion_of_Cases.html)
 
@@ -948,69 +959,93 @@ fig <- temp %>% ggplot(aes(x=reorder(`Province/State`,Value), y=Value, fill=Case
 ggplotly(fig)
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-65-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-64-1.png)
 
 [View the Proportion of Cases in China](https://github.com/koojaekwan/Corona-19/blob/master/html_files/Proportion_of_Cases2.html)
 
 ``` r
+treemap1<-
 treemap(china_latest,
-        index = "Province/State",
+        index = c("Province/State","Confirmed"),
         vSize = "Confirmed",
+        vColor="Confirmed",
         type = "index",
         title="Number of Confirmed Cases in Chinese Provinces")
-```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-1.png)
 
-``` r
+treemap2<-
 treemap(china_latest,
-        index = "Province/State",
+        index = c("Province/State", "Deaths"),
         vSize = "Deaths",
+        vColor = "Deaths",
         type = "index",
         title="Number of Deaths Reported in Chinese Provinces")
-```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-2.png)
 
-``` r
+treemap3<-
 treemap(china_latest,
-        index = "Province/State",
+        index = c("Province/State", "Recovered"),
         vSize = "Recovered",
+        vColor = "Recovered",
         type = "index",
         title="Number of Recovered Cases in Chinese Provinces")
-```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-3.png)
 
-``` r
+treemap4<-
 treemap(row_latest,
-        index = "Country/Region",
+        index = c("Country/Region", "Confirmed"),
         vSize = "Confirmed",
+        vColor = "Confirmed",
         type = "index",
-        title="Number of Confirmed Cases outside China")
-```
+        title="Number of Confirmed Cases outside China") 
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-4.png)
 
-``` r
+treemap5<-
 treemap(row_latest,
-        index = "Country/Region",
+        index = c("Country/Region", "Deaths"),
         vSize = "Deaths",
+        vColor = "Deaths",
         type = "index",
         title="Number of Deaths Reported outside China")
-```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-5.png)
+
+treemap6<-
+treemap(row_latest,
+        index = c("Country/Region", "Recovered"),
+        vSize = "Recovered",
+        vColor = "Recovered",
+        type = "index",
+        title="Number of Recovered Cases outside China") 
+```
 
 ``` r
-treemap(row_latest,
-        index = "Country/Region",
-        vSize = "Recovered",
-        type = "index",
-        title="Number of Recovered Cases outside China")
+#palette = "Set2",
+#bg.labels=c("white")
+
+fig1<-d3tree3(treemap1, rootname = "Number of Confirmed Cases in Chinese Provinces : ")
+
+fig2<-d3tree3(treemap2, rootname = "Number of Deaths Reported in Chinese Provinces : ")
+
+fig3<-d3tree3(treemap3, rootname = "Number of Recovered Cases in Chinese Provinces : ")
+
+fig4<-d3tree3(treemap4, rootname = "Number of Confirmed Cases outside China : ")
+
+fig5<-d3tree3(treemap5, rootname = "Number of Deaths Reported outside China : ")
+
+fig6<-d3tree3(treemap6, rootname = "Number of Recovered Cases outside China : ")
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-67-6.png)
+\[Number of Confirmed Cases in Chinese Provinces : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig1.html>
+
+\[Number of Deaths Reported in Chinese Provinces : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig2.html>
+
+\[Number of Recovered Cases in Chinese Provinces : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig3.html>
+
+\[Number of Confirmed Cases outside China : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig4.html>
+
+\[Number of Deaths Reported outside China : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig5.html>
+
+\[Number of Recovered Cases outside China : \]<https://raw.githack.com/koojaekwan/Corona-19/master/html_files/treemap_fig6.html>
 
 Number of cases
 ---------------
@@ -1033,7 +1068,7 @@ temp %>% ggplot(aes(x=Date, y=val, col=Cases)) +
         legend.position = c(0.15, 0.8))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-68-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-70-1.png)
 
 ``` r
 temp <- row %>% group_by(Date) %>% summarise(Confirmed=sum(Confirmed),
@@ -1051,7 +1086,7 @@ temp %>% ggplot(aes(x=Date, y=val, col=Cases)) +
         legend.position = c(0.15, 0.8))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-69-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-71-1.png)
 
 Number of new cases
 -------------------
@@ -1078,7 +1113,7 @@ ggplot(temp_c, aes(x=Date, y=n)) +
                                   colour ="black"))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-71-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-73-1.png)
 
 ``` r
 # Number of new Countries
@@ -1096,7 +1131,7 @@ ggplot(temp_c, aes(x=Date, y=`Number of new Countries`)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](Coronavirus_files/figure-markdown_github/unnamed-chunk-72-1.png)
+![](Coronavirus_files/figure-markdown_github/unnamed-chunk-74-1.png)
 
 refer
 -----
@@ -1118,3 +1153,8 @@ refer
 -   \[bar chart on the leaflet map\]<https://stackoverflow.com/questions/45538831/creating-a-leaflet-map-with-custom-labels-in-r>
 
 -   \[Cumulative Lines Animation with ggplot2\]<https://plot.ly/ggplot2/cumulative-animations/>
+
+### What i solved the above problem.
+
+-   \[treemap d3tree\]<https://www.r-graph-gallery.com/237-interactive-treemap.html>
+-   \[treemap d3tree\]<http://www.buildingwidgets.com/blog/2015/7/22/week-29-d3treer-v2>
